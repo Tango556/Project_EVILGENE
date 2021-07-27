@@ -18,10 +18,49 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	GameObjectManager::CreateInstance();
 	PhysicsWorld::CreateInstance();
 	
+	struct DirectionLight 
+	{
+		Vector3 ligDirection;
+		float pad;
+		Vector3 ligColor;
+	};
+
+	DirectionLight dirLig;
+	//ライトは斜め上から当たっている。
+	dirLig.ligDirection.x = 1.0f;
+	dirLig.ligDirection.y = -1.0f;
+	dirLig.ligDirection.z = -1.0f;
+	//正規化する
+	dirLig.ligDirection.Normalize();
+	//ライトのカラーは灰色
+	dirLig.ligColor.x = 0.8f;
+	dirLig.ligColor.y = 0.8f;
+	dirLig.ligColor.z = 0.8f;
+
 	//////////////////////////////////////
 	// 初期化を行うコードを書くのはここまで！！！
 	//////////////////////////////////////
 	auto& renderContext = g_graphicsEngine->GetRenderContext();
+
+	Model Uni;
+	Model BackGround;
+
+	ModelInitData uni;
+	uni.m_tkmFilePath = "Assets/modelData/unityChan.tkm";
+	uni.m_fxFilePath = "Assets/shader/model.fx";
+
+	uni.m_expandConstantBuffer = &dirLig;
+	uni.m_expandConstantBufferSize = sizeof(dirLig);
+
+	ModelInitData BG;
+	BG.m_tkmFilePath = "Assets/modelData/bg/bg.tkm";
+	BG.m_fxFilePath = "Assets/shader/model.fx";
+
+	BG.m_expandConstantBuffer = &dirLig;
+	BG.m_expandConstantBufferSize = sizeof(dirLig);
+
+	Uni.Init(uni);
+	BackGround.Init(BG);
 
 	// ここからゲームループ。
 	while (DispatchWindowMessage())
@@ -37,6 +76,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		GameObjectManager::GetInstance()->ExecuteUpdate();
 		GameObjectManager::GetInstance()->ExecuteRender(renderContext);
 		
+		Uni.Draw(renderContext);
+		BackGround.Draw(renderContext);
 		//////////////////////////////////////
 		//絵を描くコードを書くのはここまで！！！
 		//////////////////////////////////////

@@ -13,6 +13,12 @@ cbuffer ModelCb : register(b0){
 	float4x4 mProj;
 };
 
+//ディレクションライト用定数バッファ
+cbuffer DirectionLightCb : register(b1)
+{
+	float3 ligDirection;
+	float3 ligColor;
+};
 ////////////////////////////////////////////////
 // 構造体
 ////////////////////////////////////////////////
@@ -24,12 +30,14 @@ struct SSkinVSIn{
 //頂点シェーダーへの入力。
 struct SVSIn{
 	float4 pos 		: POSITION;		//モデルの頂点座標。
+	float3 normal	: NORMAL;
 	float2 uv 		: TEXCOORD0;	//UV座標。
 	SSkinVSIn skinVert;				//スキン用のデータ。
 };
 //ピクセルシェーダーへの入力。
 struct SPSIn{
 	float4 pos 			: SV_POSITION;	//スクリーン空間でのピクセルの座標。
+	float3 normal		: NORMAL;
 	float2 uv 			: TEXCOORD0;	//uv座標。
 };
 
@@ -79,6 +87,7 @@ SPSIn VSMainCore(SVSIn vsIn, uniform bool hasSkin)
 	psIn.pos = mul(mView, psIn.pos);
 	psIn.pos = mul(mProj, psIn.pos);
 
+	psIn.normal = mul(mWorld, vsIn.normal);
 	psIn.uv = vsIn.uv;
 
 	return psIn;
@@ -103,6 +112,21 @@ SPSIn VSSkinMain( SVSIn vsIn )
 /// </summary>
 float4 PSMain( SPSIn psIn ) : SV_Target0
 {
-	float4 albedoColor = g_albedo.Sample(g_sampler, psIn.uv);
-	return albedoColor;
+	//float4 albedoColor = g_albedo.Sample(g_sampler, psIn.uv);
+	//return albedoColor;
+	float t = dot(psIn.normal, ligDirection);
+	
+	t *= -1.0f;
+	
+	if (t < 0.0f)
+	{
+		t = 0.0f;
+	}
+	float3 diffuseLig = ligColor * t;
+	
+	float4 finalColor = g_albedo.Sample(g_sampler, psIn.uv);
+
+	finalColor.xyz *= diffuseLig;
+	
+	return finalColor;
 }
