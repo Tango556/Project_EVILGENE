@@ -35,6 +35,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//ライトのカラーは灰色
 	dirLig.SetColor({ 1.0f,1.0f,1.0f });
 
+	dirLig.eyePos = g_camera3D->GetPosition();
+
 	//////////////////////////////////////
 	// 初期化を行うコードを書くのはここまで！！！
 	//////////////////////////////////////

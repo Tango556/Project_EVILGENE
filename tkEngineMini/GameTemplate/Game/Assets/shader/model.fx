@@ -18,6 +18,7 @@ cbuffer DirectionLightCb : register(b1)
 {
 	float3 ligDirection;
 	float3 ligColor;
+    float3 eyePos;
 };
 ////////////////////////////////////////////////
 // 構造体
@@ -39,6 +40,7 @@ struct SPSIn{
 	float4 pos 			: SV_POSITION;	//スクリーン空間でのピクセルの座標。
 	float3 normal		: NORMAL;
 	float2 uv 			: TEXCOORD0;	//uv座標。
+    float3 worldPos		: TEXCOORD1;
 };
 
 ////////////////////////////////////////////////
@@ -89,7 +91,8 @@ SPSIn VSMainCore(SVSIn vsIn, uniform bool hasSkin)
 
 	psIn.normal = mul(mWorld, vsIn.normal);
 	psIn.uv = vsIn.uv;
-
+    psIn.worldPos = vsIn.pos;
+	
 	return psIn;
 }
 
@@ -124,9 +127,29 @@ float4 PSMain( SPSIn psIn ) : SV_Target0
 	}
 	float3 diffuseLig = ligColor * t;
 	
-	float4 finalColor = g_albedo.Sample(g_sampler, psIn.uv);
+    float3 refVec = reflect(ligDirection,psIn.normal);
+	
+    float3 toEye = eyePos - psIn.worldPos;
+	//正規化する
+    toEye = normalize(toEye);
+	
+	//dot関数を利用してrefVecとtoEyeの内積を求める。
+    t = dot(refVec, toEye);
+	//内積の結果はマイナスになるので、マイナスの場合は0にする
+    if (t < 0.0f)
+    {
+        t = 0.0f;
+    }
+	
+    t = pow(t, 5.0f);
+	
+    float3 specularLig = ligColor * t;
+	
+    float3 lig = diffuseLig + specularLig;
+	
+    float4 finalColor = g_albedo.Sample(g_sampler, psIn.uv);
 
-	finalColor.xyz *= diffuseLig;
+	finalColor.xyz *= lig;
 	
 	return finalColor;
 }

@@ -10,7 +10,6 @@ struct DirectionLight
 	Vector3 DirColor;
 	float pad1;
 	Vector3 eyePos;
-
 	/// <summary>
 	/// ディレクションセッター
 	/// </summary>
