@@ -18,12 +18,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	GameObjectManager::CreateInstance();
 	PhysicsWorld::CreateInstance();
 	
-	struct DirectionLight 
+	/*struct DirectionLight
 	{
 		Vector3 ligDirection;
 		float pad;
 		Vector3 ligColor;
-	};
+	};*/
 
 	DirectionLight dirLig;
 	//ライトは斜め上から当たっている。
@@ -33,9 +33,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//正規化する
 	dirLig.ligDirection.Normalize();
 	//ライトのカラーは灰色
-	dirLig.ligColor.x = 0.8f;
-	dirLig.ligColor.y = 0.8f;
-	dirLig.ligColor.z = 0.8f;
+	dirLig.SetColor({ 1.0f,1.0f,1.0f });
 
 	//////////////////////////////////////
 	// 初期化を行うコードを書くのはここまで！！！
