@@ -33,6 +33,7 @@ struct SVSIn{
 	float4 pos 		: POSITION;		//モデルの頂点座標。
 	float3 normal	: NORMAL;
 	float2 uv 		: TEXCOORD0;	//UV座標。
+   // float3 worldPos : TEXCOORD1;
 	SSkinVSIn skinVert;				//スキン用のデータ。
 };
 //ピクセルシェーダーへの入力。
@@ -148,8 +149,11 @@ float4 PSMain( SPSIn psIn ) : SV_Target0
     float3 lig = diffuseLig + specularLig;
 	
     float4 finalColor = g_albedo.Sample(g_sampler, psIn.uv);
+	
+    float3 ambientLig = { 0.3f, 0.3f, 0.3f };
 
-	finalColor.xyz *= lig;
+	finalColor.xyz *= lig + ambientLig;
+	
 	
 	return finalColor;
 }
